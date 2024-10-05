@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <script src="https://cdn.tailwindcss.com"></script>
+        <title>Env Helper</title>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const generateButton =
+                    document.getElementById("generateButton");
+                const envTextarea = document.getElementById("envTextarea");
+                const outputDiv = document.getElementById("output");
+
+                function removeMatchingQuotes(value) {
+                    if (
+                        (value.startsWith("'") && value.endsWith("'")) ||
+                        (value.startsWith('"') && value.endsWith('"'))
+                    ) {
+                        return value.slice(1, -1);
+                    }
+                    return value;
+                }
+
+                function createCopyButton(textToCopy) {
+                    const button = document.createElement("button");
+                    button.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/>
+                            <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
+                        </svg>
+                    `;
+                    button.classList.add(
+                        "copy-icon",
+                        "p-1",
+                        "rounded",
+                        "text-neutral-400",
+                        "hover:text-neutral-200",
+                        "hover:bg-neutral-600",
+                        "active:bg-neutral-700",
+                    );
+                    button.addEventListener("click", function () {
+                        navigator.clipboard.writeText(textToCopy);
+                        button.innerHTML = `
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check">
+                                <path d="M20 6 9 17l-5-5"/>
+                            </svg>
+                        `;
+                        setTimeout(
+                            () =>
+                                (button.innerHTML = `
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/>
+                                    <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
+                                </svg>
+                            `),
+                            1000,
+                        );
+                    });
+                    return button;
+                }
+
+                generateButton.addEventListener("click", function () {
+                    const envContent = envTextarea.value.trim();
+                    outputDiv.innerHTML = "";
+
+                    if (!envContent) {
+                        const errorMessage = document.createElement("div");
+                        errorMessage.classList.add("text-red-500", "mt-2");
+                        errorMessage.textContent =
+                            "Input is missing, paste the content of your .env file in the textarea above.";
+                        outputDiv.appendChild(errorMessage);
+                        return;
+                    }
+
+                    const lines = envContent.split("\n");
+
+                    lines.forEach((line) => {
+                        const [key, ...valueParts] = line.split("=");
+                        if (key && valueParts.length > 0) {
+                            let value = valueParts.join("=").trim();
+                            value = removeMatchingQuotes(value);
+
+                            const pairDiv = document.createElement("div");
+                            pairDiv.classList.add(
+                                "flex",
+                                "-space-x-px",
+                                "-mb-px",
+                            );
+
+                            const keyCard = document.createElement("div");
+                            keyCard.classList.add(
+                                "flex-1",
+                                "bg-neutral-900",
+                                "border",
+                                "border-neutral-600",
+                                "px-3",
+                                "py-2",
+                                "flex",
+                                "items-center",
+                                "justify-between",
+                            );
+
+                            const keyContent = document.createElement("div");
+                            keyContent.innerHTML = `<span class="text-neutral-200">${key.trim()}</span>`;
+
+                            keyCard.appendChild(keyContent);
+                            keyCard.appendChild(createCopyButton(key.trim()));
+
+                            const valueCard = document.createElement("div");
+                            valueCard.classList.add(
+                                "flex-1",
+                                "bg-neutral-900",
+                                "border",
+                                "border-neutral-600",
+                                "px-3",
+                                "py-2",
+                                "flex",
+                                "items-center",
+                                "justify-between",
+                            );
+
+                            const valueContent = document.createElement("div");
+                            valueContent.innerHTML = `<span class="text-neutral-300">${value}</span>`;
+
+                            valueCard.appendChild(valueContent);
+                            valueCard.appendChild(createCopyButton(value));
+
+                            pairDiv.appendChild(keyCard);
+                            pairDiv.appendChild(valueCard);
+
+                            outputDiv.appendChild(pairDiv);
+                        }
+                    });
+                });
+            });
+        </script>
+    </head>
+    <body class="bg-neutral-800 pt-8 text-neutral-200">
+        <div class="max-w-3xl mx-auto">
+            <h1 class="text-2xl font-medium text-neutral-200 mb-4">
+                Env Helper
+            </h1>
+            <a
+                href="why.html"
+                class="inline-flex items-center mt-4 bg-neutral-700 font-medium text-white px-2 py-1 rounded hover:bg-neutral-600 transition-colors duration-150"
+            >
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="lucide lucide-link mr-2"
+                >
+                    <path
+                        d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"
+                    />
+                    <path
+                        d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"
+                    />
+                </svg>
+                Why I made this tool?
+            </a>
+            <textarea
+                id="envTextarea"
+                class="bg-neutral-900 mt-6 text-neutral-200 w-full h-28 p-2 border border-neutral-600 rounded focus:outline-none focus:ring-1 focus:ring-neutral-500"
+                placeholder="Paste your .env file content here..."
+            >
+ab=123
+def=456</textarea
+            >
+            <button
+                id="generateButton"
+                class="inline-block mt-4 bg-neutral-700 font-medium text-white py-2 px-4 rounded hover:bg-neutral-600 transition-colors duration-150"
+            >
+                Generate
+            </button>
+            <div id="output" class="mt-8">
+                <!-- Key-Value pairs will be displayed here -->
+            </div>
+        </div>
+    </body>
+</html>
